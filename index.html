@@ -24,11 +24,13 @@
             border-radius: 12px;
             box-shadow: 0 0 25px rgba(255, 20, 147, 0.15);
             border: 1px solid #333;
+            position: relative;
+            z-index: 1;
         }
         h1 { color: #ff1493; text-shadow: 0 0 8px #ff1493; letter-spacing: 2px; }
         .hidden { display: none !important; }
         
-        /* Input y Botones */
+        /* Input y Botones del Juego */
         input {
             padding: 12px;
             border-radius: 6px;
@@ -59,7 +61,7 @@
         button:hover { background-color: #d60076; transform: translateY(-2px); }
         .error { color: #ff4d4d; margin-top: 15px; font-size: 14px; min-height: 20px; }
 
-        /* Barra de Letras (El Resultado Final) */
+        /* Barra de Letras */
         .letters-wrapper {
             display: flex;
             justify-content: center;
@@ -67,6 +69,8 @@
             gap: 8px;
             margin-bottom: 30px;
         }
+        .break { flex-basis: 100%; height: 15px; }
+
         .letter-box {
             width: 35px;
             height: 45px;
@@ -77,11 +81,9 @@
             justify-content: center;
             font-size: 22px;
             font-weight: bold;
-            color: #333; /* Oculto al principio */
+            color: #333;
             transition: all 0.5s ease;
         }
-        
-        /* Estilos cuando se desbloquea una letra */
         .letter-box.unlocked {
             border: 2px solid #ff1493;
             background: rgba(255, 20, 147, 0.1);
@@ -89,23 +91,143 @@
             box-shadow: 0 0 10px rgba(255, 20, 147, 0.5);
             transform: scale(1.1);
         }
-        
-        /* El Corazón del medio */
         .heart-slot { border-color: #ff4d4d; }
         .heart-slot.unlocked { color: #ff4d4d; border-color: #ff4d4d; background: rgba(255, 77, 77, 0.1); }
-
-        /* Espaciador entre palabras */
         .spacer { width: 15px; }
 
-        /* Pantalla Final */
+        /* Pantalla Final y Animaciones */
         #final-screen { animation: fadeIn 2s ease; }
         .big-heart { font-size: 60px; margin: 20px 0; animation: beat 1.2s infinite; }
-        
         @keyframes beat { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Barra de progreso */
         .progress { color: #777; font-size: 12px; margin-bottom: 10px; }
+
+        /* --- ESTILOS PARA LOS REGALOS --- */
+        
+        .gifts-container {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .gift-btn {
+            background: linear-gradient(45deg, #ff1493, #ff69b4);
+            color: white;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+            width: 80%;
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
+            transition: transform 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .gift-btn:hover { transform: scale(1.05); }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal-content {
+            background: #252525;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid #ff1493;
+            position: relative;
+            box-shadow: 0 0 30px rgba(255, 20, 147, 0.3);
+            text-align: center;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px; right: 15px;
+            font-size: 24px;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        /* CARROUSEL */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 2px solid #444;
+        }
+        .carousel-slide {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        .carousel-slide.active { display: block; animation: fade 0.5s; }
+        @keyframes fade { from {opacity: .4} to {opacity: 1} }
+
+        /* FECHA EN EL CARROUSEL (NUEVO) */
+        .carousel-date {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6); /* Fondo semitransparente */
+            color: #fff;
+            padding: 8px 0;
+            font-size: 16px;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+            z-index: 10;
+        }
+
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%; width: auto;
+            margin-top: -22px;
+            padding: 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            background-color: rgba(0,0,0,0.5);
+            border-radius: 3px;
+            user-select: none;
+            z-index: 20; /* Para que quede arriba de la foto */
+        }
+        .next { right: 0; border-radius: 3px 0 0 3px; }
+        .prev { left: 0; border-radius: 0 3px 3px 0; }
+
+        /* TICKET */
+        .ticket {
+            background-color: #fff8dc;
+            color: #333;
+            padding: 20px;
+            border: 2px dashed #d4af37;
+            border-radius: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            margin-top: 10px;
+            transform: rotate(-2deg);
+        }
+        .ticket h3 { margin: 0; color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 5px; }
+        .ticket p { font-size: 18px; font-weight: bold; margin-top: 15px; }
+
     </style>
 </head>
 <body>
@@ -113,16 +235,15 @@
     <div class="container">
         <div class="letters-wrapper">
             <div id="slot-0" class="letter-box">?</div> <div id="slot-1" class="letter-box">?</div> <div id="slot-2" class="letter-box">?</div> <div id="slot-3" class="letter-box">?</div> <div class="spacer"></div>
-            <div id="slot-4" class="letter-box heart-slot">?</div> <div class="spacer"></div>
-
+            <div id="slot-4" class="letter-box heart-slot">?</div> <div class="break"></div>
             <div id="slot-5" class="letter-box">?</div> <div id="slot-6" class="letter-box">?</div> <div class="spacer"></div>
-            <div id="slot-7" class="letter-box">?</div> <div id="slot-8" class="letter-box">?</div> <div id="slot-9" class="letter-box">?</div> </div>
+            <div id="slot-7" class="letter-box">?</div> <div id="slot-8" class="letter-box">?</div> <div id="slot-9" class="letter-box">?</div> 
+        </div>
 
         <div id="question-area">
             <p class="progress">NIVEL DE SEGURIDAD: <span id="q-counter">1</span>/10</p>
             <h2 id="q-title">Cargando...</h2>
             <p id="q-text" style="font-size: 18px; margin: 20px 0;">...</p>
-            
             <input type="text" id="user-input" placeholder="Ingresá el código..." autocomplete="off">
             <br>
             <button onclick="submitAnswer()">DESBLOQUEAR</button>
@@ -132,99 +253,78 @@
         <div id="final-screen" class="hidden">
             <h1>¡SISTEMA DESBLOQUEADO!</h1>
             <div class="big-heart">💖</div>
-            <p>Lo lograste, Agos.</p>
-            <p>Gracias por jugar y por dejarme conocerte cada día más.</p>
-            <p style="font-size: 20px; color: #ff1493; font-weight: bold; margin-top:30px;">
-                AGOS TE AMO
-            </p>
+            <p>Bien hecho 🙃, lo lograste Agostinita.</p>
+            <p>Solo quería recordarte lo mucho que te quiero y lo especial que sos para mi.</p>
+            
+            <div class="gifts-container">
+                <button class="gift-btn" onclick="openModal('gift1')">🎁 Breve resumen en fotos...</button>
+                <button class="gift-btn" onclick="openModal('gift2')">🎟️ ABRIR REGALO 2</button>
+            </div>
         </div>
     </div>
 
-    <script>
-        // --- CONFIGURACIÓN DE NIVELES (EDITAR ACÁ) ---
-        // targetIndex: Es la posición de la letra en la frase "AGOS 💖 TE AMO" (0 a 9)
-        // answers: Puede ser un array con varias opciones válidas (todo en minúscula)
-        // reward: La letra que se muestra arriba al acertar
+    <div id="modal-overlay" class="modal-overlay">
         
+        <div id="modal-gift1" class="modal-content hidden">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 style="color: #ff69b4;">NUESTROS MOMENTOS</h2>
+            
+            <div class="carousel-container">
+                
+                <img src="./1.png" class="carousel-slide" data-date="30/01/2025">
+                <img src="./2.png" class="carousel-slide" data-date="25/05/2025">
+                <img src="./3.jpeg" class="carousel-slide" data-date="5/08/2025">
+                <img src="./4.png" class="carousel-slide" data-date="20/08/2025">
+                <img src="./5.png" class="carousel-slide" data-date="30/08/2025">
+                <img src="./a.png" class="carousel-slide" data-date="07/09/2025">
+                <img src="./a.png" class="carousel-slide" data-date="07/09/2025">
+                <img src="./7.png" class="carousel-slide" data-date="29/11/2025">
+                <img src="./8.png" class="carousel-slide" data-date="5/12/2025">
+                <img src="./9.png" class="carousel-slide" data-date="16/12/2025">
+                <img src="./b.png" class="carousel-slide" data-date="28/12/2025">
+                
+                <div id="carousel-date-display" class="carousel-date">01/01/2026</div>
+
+                <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
+                <a class="next" onclick="changeSlide(1)">&#10095;</a>
+            </div>
+
+            <p>Cada foto muestra un punto de avance en nuestra historia, y me gustaría seguir sumando nuevas con vos. Te quiero mucho.</p>
+        </div>
+
+        <div id="modal-gift2" class="modal-content hidden">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 style="color: #d4af37;">TICKET ESPECIAL</h2>
+            
+            <div class="ticket">
+                <h3>GOLDEN TICKET</h3>
+                <p>VALE POR:</p>
+                <p style="font-size: 22px; color: #000;">LO QUE QUIERAS...</p>
+                <p style="font-size: 12px; margin-top: 20px;">(Válido hasta el 6 de febrero)</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN DE NIVELES ---
         const levels = [
-            // A - AGOS (Index 0)
-            {
-                question: "¿Nombre de la dueña de mi sonrisa?",
-                answers: ["agostina", "agos"],
-                targetIndex: 0,
-                reward: "A"
-            },
-            // G - AGOS (Index 1)
-            {
-                question: "El lugar donde nos conocimos.",
-                answers: ["gimnasio", "gym", "el gym", "el gimnasio"],
-                targetIndex: 1,
-                reward: "G"
-            },
-            // O - AGOS (Index 2)
-            {
-                question: "Dicen todo lo que no decimos con palabras...",
-                answers: ["ojos", "miradas", "tus ojos"],
-                targetIndex: 2,
-                reward: "O"
-            },
-            // S - AGOS (Index 3)
-            {
-                question: "Lugar de nuestra primera salida oficial.",
-                answers: ["starbucks"],
-                targetIndex: 3,
-                reward: "S"
-            },
-            // 💖 - Corazón (Index 4)
-            {
-                question: "Músculo involuntario que aumenta sus RPM cada vez que te doy un beso.",
-                answers: ["corazon", "corazón", "<3"],
-                targetIndex: 4,
-                reward: "💖"
-            },
-            // T - TE (Index 5)
-            {
-                question: "¿Qué es lo que pasó volando en nuestras primeras juntadas?",
-                answers: ["tiempo", "el tiempo"],
-                targetIndex: 5,
-                reward: "T"
-            },
-            // E - TE (Index 6)
-            {
-                question: "Objeto de tu baño donde te hice buscar mi cepillo de dientes...",
-                answers: ["espejo"],
-                targetIndex: 6,
-                reward: "E"
-            },
-            // A - AMO (Index 7)
-            {
-                question: "En la búsqueda del tesoro hubo una pista falsa. ¿Cómo le dije a eso?",
-                answers: ["amague", "error", "una trampa"],
-                targetIndex: 7,
-                reward: "A"
-            },
-            // M - AMO (Index 8)
-            {
-                question: "La primer excusa para vernos fue...",
-                answers: ["vale por", "merienda", "cafe", "café","helado"],
-                targetIndex: 8,
-                reward: "M"
-            },
-            // O - AMO (Index 9)
-            {
-                question: "Animal que define el tipo de abrazo que te debo.",
-                answers: ["oso"],
-                targetIndex: 9,
-                reward: "O"
-            }
+            { question: "¿Nombre de la dueña de mi sonrisa?", answers: ["agostina", "agos"], targetIndex: 0, reward: "A" },
+            { question: "El lugar donde nos conocimos.", answers: ["gimnasio", "gym", "el gym", "el gimnasio"], targetIndex: 1, reward: "G" },
+            { question: "Dicen todo lo que no decimos con palabras...", answers: ["ojos", "miradas", "tus ojos"], targetIndex: 2, reward: "O" },
+            { question: "Lugar de nuestra primera salida oficial.", answers: ["starbucks"], targetIndex: 3, reward: "S" },
+            { question: "Músculo involuntario que aumenta sus RPM cada vez que te doy un beso.", answers: ["corazon", "corazón", "<3"], targetIndex: 4, reward: "💖" },
+            { question: "Magnitud física que pasa volando cuando estoy con vos.", answers: ["tiempo", "el tiempo"], targetIndex: 5, reward: "T" },
+            { question: "Objeto de tu baño donde te hice buscar mi cepillo de dientes...", answers: ["espejo"], targetIndex: 6, reward: "E" },
+            { question: "En la búsqueda del tesoro hubo una pista falsa. ¿Cómo le dije a eso?", answers: ["amague", "error", "una trampa"], targetIndex: 7, reward: "A" },
+            { question: "La primer excusa para vernos fue...", answers: ["vale por", "merienda", "cafe", "café","helado"], targetIndex: 8, reward: "M" },
+            { question: "Animal que define el tipo de abrazo que te debo.", answers: ["oso"], targetIndex: 9, reward: "O" }
         ];
 
         // --- LÓGICA DEL JUEGO ---
-
         let currentLevelIndex = 0;
         let shuffledLevels = [];
 
-        // Función para mezclar el array (Fisher-Yates Shuffle)
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -233,33 +333,23 @@
             return array;
         }
 
-        // Inicializar juego
         function initGame() {
-            // Clonamos y mezclamos los niveles para que salgan desordenados
             shuffledLevels = shuffleArray([...levels]);
             loadLevel();
         }
 
         function loadLevel() {
             if (currentLevelIndex >= shuffledLevels.length) {
-                // Fin del juego
                 document.getElementById('question-area').classList.add('hidden');
                 document.getElementById('final-screen').classList.remove('hidden');
                 return;
             }
-
             const levelData = shuffledLevels[currentLevelIndex];
-            
-            // Actualizar UI
             document.getElementById('q-counter').innerText = currentLevelIndex + 1;
             document.getElementById('q-title').innerText = "DESAFÍO #" + (currentLevelIndex + 1);
             document.getElementById('q-text').innerText = levelData.question;
-            
-            // Limpiar input
             const input = document.getElementById('user-input');
-            input.value = "";
-            input.focus();
-            document.getElementById('error-msg').innerText = "";
+            input.value = ""; input.focus(); document.getElementById('error-msg').innerText = "";
         }
 
         function submitAnswer() {
@@ -267,45 +357,66 @@
             const levelData = shuffledLevels[currentLevelIndex];
             const errorMsg = document.getElementById('error-msg');
 
-            // Verificar respuesta
             if (levelData.answers.includes(input)) {
-                // Correcto!
-                
-                // 1. Revelar la letra en la barra superior (buscando por el ID original)
                 const slot = document.getElementById('slot-' + levelData.targetIndex);
                 slot.innerText = levelData.reward;
                 slot.classList.add('unlocked');
-
-                // 2. Pasar al siguiente
                 currentLevelIndex++;
-                
-                // Pequeña animación de éxito en el input antes de cambiar
                 document.getElementById('user-input').style.borderColor = "#00ff00";
-                setTimeout(() => {
-                    document.getElementById('user-input').style.borderColor = "#444";
-                    loadLevel();
-                }, 500);
-
+                setTimeout(() => { document.getElementById('user-input').style.borderColor = "#444"; loadLevel(); }, 500);
             } else {
-                // Error
                 errorMsg.innerText = "❌ Mmm... acceso denegado. Intentá de nuevo.";
                 const inputField = document.getElementById('user-input');
-                inputField.style.borderColor = "red";
-                inputField.classList.add('shake');
-                setTimeout(() => { 
-                    inputField.style.borderColor = "#444"; 
-                }, 500);
+                inputField.style.borderColor = "red"; inputField.classList.add('shake');
+                setTimeout(() => { inputField.style.borderColor = "#444"; }, 500);
             }
         }
 
-        // Permitir enter para enviar
         document.getElementById('user-input').addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                submitAnswer();
-            }
+            if (event.key === "Enter") { submitAnswer(); }
         });
 
-        // Arrancar
+        // --- LÓGICA DE MODALES Y CARROUSEL ---
+        
+        function openModal(giftType) {
+            document.getElementById('modal-overlay').classList.add('active');
+            
+            document.getElementById('modal-gift1').classList.add('hidden');
+            document.getElementById('modal-gift2').classList.add('hidden');
+
+            if(giftType === 'gift1') {
+                document.getElementById('modal-gift1').classList.remove('hidden');
+            } else {
+                document.getElementById('modal-gift2').classList.remove('hidden');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+        }
+
+        let slideIndex = 0;
+        
+        function changeSlide(n) {
+            let slides = document.getElementsByClassName("carousel-slide");
+            let dateDisplay = document.getElementById("carousel-date-display");
+
+            slideIndex += n;
+            if (slideIndex >= slides.length) { slideIndex = 0 }
+            if (slideIndex < 0) { slideIndex = slides.length - 1 }
+            
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].classList.remove("active");
+            }
+            
+            // Mostrar la nueva imagen
+            slides[slideIndex].classList.add("active");
+            
+            // ACTUALIZAR LA FECHA (Lee el atributo data-date)
+            let newDate = slides[slideIndex].getAttribute("data-date");
+            dateDisplay.innerText = newDate;
+        }
+
         initGame();
 
     </script>
