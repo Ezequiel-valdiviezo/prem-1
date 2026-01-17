@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misión Confidencial</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #111;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            padding: 25px;
+            background: #1f1f1f;
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(255, 20, 147, 0.15);
+            border: 1px solid #333;
+        }
+        h1 { color: #ff1493; text-shadow: 0 0 8px #ff1493; letter-spacing: 2px; }
+        .hidden { display: none !important; }
+        
+        /* Input y Botones */
+        input {
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background: #2a2a2a;
+            color: #fff;
+            width: 80%;
+            margin-top: 15px;
+            font-size: 18px;
+            text-align: center;
+            outline: none;
+        }
+        input:focus { border-color: #ff1493; }
+        
+        button {
+            padding: 12px 30px;
+            margin-top: 20px;
+            background-color: #ff1493;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
+        }
+        button:hover { background-color: #d60076; transform: translateY(-2px); }
+        .error { color: #ff4d4d; margin-top: 15px; font-size: 14px; min-height: 20px; }
+
+        /* Barra de Letras (El Resultado Final) */
+        .letters-wrapper {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 30px;
+        }
+        .letter-box {
+            width: 35px;
+            height: 45px;
+            border: 2px dashed #444;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: #333; /* Oculto al principio */
+            transition: all 0.5s ease;
+        }
+        
+        /* Estilos cuando se desbloquea una letra */
+        .letter-box.unlocked {
+            border: 2px solid #ff1493;
+            background: rgba(255, 20, 147, 0.1);
+            color: #ff1493;
+            box-shadow: 0 0 10px rgba(255, 20, 147, 0.5);
+            transform: scale(1.1);
+        }
+        
+        /* El Corazón del medio */
+        .heart-slot { border-color: #ff4d4d; }
+        .heart-slot.unlocked { color: #ff4d4d; border-color: #ff4d4d; background: rgba(255, 77, 77, 0.1); }
+
+        /* Espaciador entre palabras */
+        .spacer { width: 15px; }
+
+        /* Pantalla Final */
+        #final-screen { animation: fadeIn 2s ease; }
+        .big-heart { font-size: 60px; margin: 20px 0; animation: beat 1.2s infinite; }
+        
+        @keyframes beat { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Barra de progreso */
+        .progress { color: #777; font-size: 12px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="letters-wrapper">
+            <div id="slot-0" class="letter-box">?</div> <div id="slot-1" class="letter-box">?</div> <div id="slot-2" class="letter-box">?</div> <div id="slot-3" class="letter-box">?</div> <div class="spacer"></div>
+            <div id="slot-4" class="letter-box heart-slot">?</div> <div class="spacer"></div>
+
+            <div id="slot-5" class="letter-box">?</div> <div id="slot-6" class="letter-box">?</div> <div class="spacer"></div>
+            <div id="slot-7" class="letter-box">?</div> <div id="slot-8" class="letter-box">?</div> <div id="slot-9" class="letter-box">?</div> </div>
+
+        <div id="question-area">
+            <p class="progress">NIVEL DE SEGURIDAD: <span id="q-counter">1</span>/10</p>
+            <h2 id="q-title">Cargando...</h2>
+            <p id="q-text" style="font-size: 18px; margin: 20px 0;">...</p>
+            
+            <input type="text" id="user-input" placeholder="Ingresá el código..." autocomplete="off">
+            <br>
+            <button onclick="submitAnswer()">DESBLOQUEAR</button>
+            <p id="error-msg" class="error"></p>
+        </div>
+
+        <div id="final-screen" class="hidden">
+            <h1>¡SISTEMA DESBLOQUEADO!</h1>
+            <div class="big-heart">💖</div>
+            <p>Lo lograste, Agos.</p>
+            <p>Gracias por jugar y por dejarme conocerte cada día más.</p>
+            <p style="font-size: 20px; color: #ff1493; font-weight: bold; margin-top:30px;">
+                AGOS TE AMO
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN DE NIVELES (EDITAR ACÁ) ---
+        // targetIndex: Es la posición de la letra en la frase "AGOS 💖 TE AMO" (0 a 9)
+        // answers: Puede ser un array con varias opciones válidas (todo en minúscula)
+        // reward: La letra que se muestra arriba al acertar
+        
+        const levels = [
+            // A - AGOS (Index 0)
+            {
+                question: "¿Nombre de la dueña de mi sonrisa?",
+                answers: ["agostina", "agos"],
+                targetIndex: 0,
+                reward: "A"
+            },
+            // G - AGOS (Index 1)
+            {
+                question: "El lugar donde nos conocimos.",
+                answers: ["gimnasio", "gym", "el gym", "el gimnasio"],
+                targetIndex: 1,
+                reward: "G"
+            },
+            // O - AGOS (Index 2)
+            {
+                question: "Dicen todo lo que no decimos con palabras...",
+                answers: ["ojos", "miradas", "tus ojos"],
+                targetIndex: 2,
+                reward: "O"
+            },
+            // S - AGOS (Index 3)
+            {
+                question: "Lugar de nuestra primera salida oficial.",
+                answers: ["starbucks"],
+                targetIndex: 3,
+                reward: "S"
+            },
+            // 💖 - Corazón (Index 4)
+            {
+                question: "Músculo involuntario que aumenta sus RPM cada vez que te doy un beso.",
+                answers: ["corazon", "corazón", "<3"],
+                targetIndex: 4,
+                reward: "💖"
+            },
+            // T - TE (Index 5)
+            {
+                question: "¿Qué es lo que pasó volando en nuestras primeras juntadas?",
+                answers: ["tiempo", "el tiempo"],
+                targetIndex: 5,
+                reward: "T"
+            },
+            // E - TE (Index 6)
+            {
+                question: "Objeto de tu baño donde te hice buscar mi cepillo de dientes...",
+                answers: ["espejo"],
+                targetIndex: 6,
+                reward: "E"
+            },
+            // A - AMO (Index 7)
+            {
+                question: "En la búsqueda del tesoro hubo una pista falsa. ¿Cómo le dije a eso?",
+                answers: ["amague", "error", "una trampa"],
+                targetIndex: 7,
+                reward: "A"
+            },
+            // M - AMO (Index 8)
+            {
+                question: "La primer excusa para vernos fue...",
+                answers: ["vale por", "merienda", "cafe", "café","helado"],
+                targetIndex: 8,
+                reward: "M"
+            },
+            // O - AMO (Index 9)
+            {
+                question: "Animal que define el tipo de abrazo que te debo.",
+                answers: ["oso"],
+                targetIndex: 9,
+                reward: "O"
+            }
+        ];
+
+        // --- LÓGICA DEL JUEGO ---
+
+        let currentLevelIndex = 0;
+        let shuffledLevels = [];
+
+        // Función para mezclar el array (Fisher-Yates Shuffle)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Inicializar juego
+        function initGame() {
+            // Clonamos y mezclamos los niveles para que salgan desordenados
+            shuffledLevels = shuffleArray([...levels]);
+            loadLevel();
+        }
+
+        function loadLevel() {
+            if (currentLevelIndex >= shuffledLevels.length) {
+                // Fin del juego
+                document.getElementById('question-area').classList.add('hidden');
+                document.getElementById('final-screen').classList.remove('hidden');
+                return;
+            }
+
+            const levelData = shuffledLevels[currentLevelIndex];
+            
+            // Actualizar UI
+            document.getElementById('q-counter').innerText = currentLevelIndex + 1;
+            document.getElementById('q-title').innerText = "DESAFÍO #" + (currentLevelIndex + 1);
+            document.getElementById('q-text').innerText = levelData.question;
+            
+            // Limpiar input
+            const input = document.getElementById('user-input');
+            input.value = "";
+            input.focus();
+            document.getElementById('error-msg').innerText = "";
+        }
+
+        function submitAnswer() {
+            const input = document.getElementById('user-input').value.toLowerCase().trim();
+            const levelData = shuffledLevels[currentLevelIndex];
+            const errorMsg = document.getElementById('error-msg');
+
+            // Verificar respuesta
+            if (levelData.answers.includes(input)) {
+                // Correcto!
+                
+                // 1. Revelar la letra en la barra superior (buscando por el ID original)
+                const slot = document.getElementById('slot-' + levelData.targetIndex);
+                slot.innerText = levelData.reward;
+                slot.classList.add('unlocked');
+
+                // 2. Pasar al siguiente
+                currentLevelIndex++;
+                
+                // Pequeña animación de éxito en el input antes de cambiar
+                document.getElementById('user-input').style.borderColor = "#00ff00";
+                setTimeout(() => {
+                    document.getElementById('user-input').style.borderColor = "#444";
+                    loadLevel();
+                }, 500);
+
+            } else {
+                // Error
+                errorMsg.innerText = "❌ Mmm... acceso denegado. Intentá de nuevo.";
+                const inputField = document.getElementById('user-input');
+                inputField.style.borderColor = "red";
+                inputField.classList.add('shake');
+                setTimeout(() => { 
+                    inputField.style.borderColor = "#444"; 
+                }, 500);
+            }
+        }
+
+        // Permitir enter para enviar
+        document.getElementById('user-input').addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                submitAnswer();
+            }
+        });
+
+        // Arrancar
+        initGame();
+
+    </script>
+</body>
+</html>
